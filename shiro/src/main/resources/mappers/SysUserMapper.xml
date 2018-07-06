@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.test.shiro.shirotest1.dao.SysUserMapper">
+   <select id="getUserByName" resultType="cn.test.shiro.shirotest1.entity.SysUser">
+      select * from sys_user where usercode=#{name}
+   </select>
+   <select id="getUserByCode" resultType="cn.test.shiro.shirotest1.entity.SysUser">
+      select * from sys_user where usercode=#{usercode}
+   </select>
+
+   <select id="doLogin" resultType="cn.test.shiro.shirotest1.entity.SysUser">
+      select * from sys_user where usercode=#{name} and password=#{password}
+   </select>
+   
+   <select id="getPermissions" resultType="cn.test.shiro.shirotest1.entity.SysPermission">
+       SELECT * FROM sys_permission AS p WHERE TYPE='permission' AND p.id IN
+      (SELECT sys_permission_id FROM sys_role_permission WHERE sys_role_id=
+        ( SELECT sys_role_id FROM sys_user_role WHERE sys_user_id=#{usercode})
+         )
+   </select>
+   
+   <select id="getAllUsers" resultType="cn.test.shiro.shirotest1.entity.SysUser">
+      select * from sys_user
+   </select>
+</mapper>
