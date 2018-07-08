@@ -13,10 +13,10 @@ public class MyResult {
     }
 
     public static MyResult ok(){
-        return new MyResult(1,"ok","");
+        return new MyResult(1,"ok",null);
     }
 
     public static MyResult error(){
-        return new MyResult(0,"error","");
+        return new MyResult(0,"error",null);
     }
 }

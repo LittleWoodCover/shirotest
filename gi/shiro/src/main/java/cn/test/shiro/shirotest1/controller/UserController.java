@@ -13,22 +13,18 @@ import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class UserController {
     @Autowired
     private SysUserService sysUserService;
-    @GetMapping("/index1")
-    public String index(){
-        return "index";
-    }
 
     @PostMapping(value = "/user")
     public SysUser usercheck(@RequestParam  String usercode){
@@ -44,10 +40,9 @@ public class UserController {
     }
 
     @PostMapping(value = "/login")
-    public MyResult logins(@RequestParam(value = "usercode") String usercode,@RequestParam("password") String password){
-        UsernamePasswordToken token = new UsernamePasswordToken(usercode, password);
+    public MyResult logins(@RequestParam(value = "username") String username,@RequestParam("password") String password){
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject subject = SecurityUtils.getSubject();
-
         try {
             subject.login(token);
         } catch (IncorrectCredentialsException ice) {
@@ -66,7 +61,7 @@ public class UserController {
             mv.addObject("message", "times error");
             return MyResult.error();
         }
-        SysUser user = sysUserService.getUserByName(usercode);
+        SysUser user = sysUserService.getUserByName(username);
         subject.getSession().setAttribute("user", user);
 
         return MyResult.ok();
@@ -81,34 +76,5 @@ public class UserController {
     @PostMapping(value = "/getPermission")
     public List<SysPermission> getPerMission(@RequestParam String username){
        return  sysUserService.getPermissions(username);
-    }
-
-    @PostMapping(value = "/login1")
-    public String login1(HttpServletRequest request, Map<String,Object> map){
-        System.out.println("HomeController.login()");
-        // 登录失败从request中获取shiro处理的异常信息。
-        // shiroLoginFailure:就是shiro异常类的全类名.
-        String exception = (String) request.getAttribute("shiroLoginFailure");
-        System.out.println("exception=" + exception);
-        String msg = "";
-        if (exception != null) {
-            if (UnknownAccountException.class.getName().equals(exception)) {
-                System.out.println("UnknownAccountException -- > 账号不存在：");
-                msg = "UnknownAccountException -- > 账号不存在：";
-            } else if (IncorrectCredentialsException.class.getName().equals(exception)) {
-                System.out.println("IncorrectCredentialsException -- > 密码不正确：");
-                msg = "IncorrectCredentialsException -- > 密码不正确：";
-            } else if ("kaptchaValidateFailed".equals(exception)) {
-                System.out.println("kaptchaValidateFailed -- > 验证码错误");
-                msg = "kaptchaValidateFailed -- > 验证码错误";
-            } else {
-                msg = "else >> "+exception;
-                System.out.println("else -- >" + exception);
-            }
-        }
-        map.put("msg", msg);
-        // 此方法不处理登录成功,由shiro进行处理
-        return "ok";
-
     }
 }
